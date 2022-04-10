@@ -1,30 +1,39 @@
 package com.gnar.cloneprojectopgg.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 public class Summoner {
     @Getter
-    @AllArgsConstructor
-    @Builder
+    @Setter
     public static class Info {
-        private String accountId;   //Encrypted account ID. Max length 56 characters.
-        private int profileIconId;  //ID of the summoner icon associated with the summoner.
-        private long revisionDate;  //Date summoner was last modified specified as epoch milliseconds. The following events will update this timestamp: summoner name change, summoner level change, or profile icon change.
-        private String name;        //Summoner name.
-        private String id;       //Encrypted summoner ID. Max length 63 characters.
-        private String puuid;       //Encrypted PUUID. Exact length of 78 characters.
-        private long summonerLevel; //Summoner level associated with the summoner.
+        private String id;            //Encrypted summoner ID. Max length 63 characters.
+        private String puuid;         //Encrypted summoner ID. Max length 63 characters.
+    }
+    @Getter
+    @Setter
+    public static class Match {
+        private String matchId;       
     }
 
-/*     @Getter
+    @Getter
+    @Setter
+    public static class SummonerDTO {
+        private String accountId;     //Encrypted account ID. Max length 56 characters.
+        private int profileIconId;    //프로필 아이콘 이미지 ID
+        private long revisionDate;    //최종 수정된 날짜
+        private String name;          //소환사 닉네임
+        private String id;            //Encrypted summoner ID. Max length 63 characters.
+        private String puuid;         //해당 계정의 절대 불변하지 않는 고유 식별 ID
+        private long summonerLevel;   //소환사 레벨
+    }
+/* 
+    @Getter
     @Setter
     public static class Request {
         private String name;
         private int age;
-    } */
+    }
 
     @Getter
     @AllArgsConstructor
@@ -32,4 +41,5 @@ public class Summoner {
         private String accountId;   //Encrypted account ID. Max length 56 characters.
         private String id;       //Encrypted summoner ID. Max length 63 characters.
     }
+ */
 }

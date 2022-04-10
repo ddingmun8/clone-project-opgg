@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.gnar.cloneprojectopgg.dto.Summoner;
+
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -19,26 +22,27 @@ import org.json.simple.parser.JSONParser;
 @RequestMapping(value = "/lol")
 public class OpggApiController {
     GRUtils grUtils = new GRUtils();
+    Summoner.Info summonerInfo = new Summoner.Info();
+    Summoner.Match summonerMatch = new Summoner.Match();
 
     @Value("${RIOT_API_KEY}")
     private String riotApiKey;
     
     private String riotUrl = "https://kr.api.riotgames.com";
-    private String summonerId = "";
+    private String riotUrl2 = "https://asia.api.riotgames.com";
 
     //소환사 정보검색(SUMMONER-V4)
     @GetMapping(path = "/findUserInfo/{searchName}")
     public JSONObject findUserInfo(@PathVariable(name = "searchName") String summonerName) {
         //소환사 명 인코딩
-        //System.out.println("summonerName 확인 : " + summonerName);
         summonerName = grUtils.URLEncode(summonerName);
         String requestUrl = riotUrl + "/lol/summoner/v4/summoners/by-name/" + summonerName;
-        //System.out.println("requestUrl 확인 : " + requestUrl);
+
         JSONObject jsonUserInfo = new JSONObject();
         try {
             jsonUserInfo = getApiJson(requestUrl);
-            summonerId = jsonUserInfo.get("id").toString();
-            findUserRecord(summonerId);
+            summonerInfo.setId(jsonUserInfo.get("id").toString());
+            summonerInfo.setPuuid(jsonUserInfo.get("puuid").toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,32 +50,48 @@ public class OpggApiController {
         return jsonUserInfo;
     }
 
-    //소환사 전적검색(LEAGUE-V4)
-    public JSONArray findUserRecord(String summonerId) {
-        String requestUrl = riotUrl + "/lol/league/v4/entries/by-summoner/" + summonerId;
-        JSONArray jsonUserInfo = new JSONArray();
+    //소환사 LEAGUE 정보(LEAGUE-V4)
+    @RequestMapping(value = "/findUserLeague")
+    public JSONArray findUserLeague() {
+        String requestUrl = riotUrl + "/lol/league/v4/entries/by-summoner/" + summonerInfo.getId();
+        JSONArray jsonUserLeague = new JSONArray();
         try {
-            jsonUserInfo = getApiJson2(requestUrl);
+            jsonUserLeague = getApiJsonArray(requestUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return jsonUserInfo;
+        return jsonUserLeague;
     } 
 
-/*     //LEAGUE-V4
-    @GetMapping(path = "/findUserRecord/{summonerId}")
-    public JSONObject findUserRecord(@PathVariable(name = "summonerId") String summonerId) {
-        String requestUrl = riotUrl + "/lol/league/v4/entries/by-summoner/" + summonerId;
-        JSONObject jsonUserInfo = new JSONObject();
+    //계정정보(PUUID)로 게임 MATCH ID 받기(MATCH-V5)
+    @RequestMapping(value = "/findMatchId")
+    public JSONArray findMatchId() {
+        String requestUrl = riotUrl2 + "/lol/match/v5/matches/by-puuid/" + summonerInfo.getPuuid() + "/ids";
+        JSONArray jsonUMatchList = new JSONArray();
         try {
-            jsonUserInfo = getApiJson(requestUrl);
+            jsonUMatchList = getApiJsonArray(requestUrl);
+            summonerMatch.setMatchId(jsonUMatchList.get(0).toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return jsonUserInfo;
-    } */
+        return jsonUMatchList;
+    } 
+
+    //MATCH ID로 해당 게임 관련 정보 받기(MATCH-V5)
+    @RequestMapping(value = "/findMatchInfo")
+    public JSONObject findMatchInfo() {
+        String requestUrl = riotUrl2 + "/lol/match/v5/matches/" + summonerMatch.getMatchId();
+        JSONObject jsonMatchInfo = new JSONObject();
+        try {
+            jsonMatchInfo = getApiJson(requestUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return jsonMatchInfo;
+    } 
 
     public JSONObject getApiJson(String requestURL) throws Exception{
         JSONObject jsonObj = new JSONObject();
@@ -105,7 +125,7 @@ public class OpggApiController {
         return jsonObj;
     }
 
-    public JSONArray getApiJson2(String requestURL) throws Exception{
+    public JSONArray getApiJsonArray(String requestURL) throws Exception{
         JSONArray jsonArray = new JSONArray();
         JSONParser jParser = new JSONParser();
 
