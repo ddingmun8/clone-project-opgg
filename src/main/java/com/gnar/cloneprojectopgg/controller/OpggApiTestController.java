@@ -56,50 +56,32 @@ public class OpggApiTestController {
         //소환사 명 인코딩
         summonerName = grUtils.URLEncode(summonerName);
         String requestUrl = riotUrl + "/lol/summoner/v4/summoners/by-name/" + summonerName;
-
-        JSONObject jsonUserInfo = new JSONObject();
+        
+        
         try {
-            jsonUserInfo = getApiJson(requestUrl);
+            //resPart1  JSON 만들기
+            //1. 라이엇 API 사용자 이름, 레벨, 아이콘
+            JSONObject jsonDto = getApiJson(requestUrl);
+            //2. 시즌별 티어
+            JSONArray jsonArrST = getSeasonTier();
+            //3. 프로필 아이콘 URL
+            String profileIconUrl = "https://ddragon.leagueoflegends.com/cdn/12.6.1/img/profileicon/" + jsonDto.get("profileIconId") + ".png";
 
-            
-            //시즌별 티어
-            JSONObject jsonST1 = new JSONObject();
-            jsonST1.put("season", "2021");
-            jsonST1.put("tier", "silver");
-            JSONObject jsonST2 = new JSONObject();
-            jsonST2.put("season", "2020");
-            jsonST2.put("tier", "silver");
+            //1~3 데이터 JSON형식으로 합치기
+            jsonDto.put("seasonTier", jsonArrST);
+            jsonDto.put("profileIconUrl", profileIconUrl);
+            jsonDto.put("ladderRanking", "1954803");
 
-            JSONArray jsonArrST = new JSONArray();
-            jsonArrST.add(jsonST1);
-            jsonArrST.add(jsonST2);
+            //resPart1 모든 정보 DTO에 담기
+            ConvertDto(jsonDto.toString());
 
-            String profileIconUrl = "https://ddragon.leagueoflegends.com/cdn/12.6.1/img/profileicon/" + jsonUserInfo.get("profileIconId") + ".png";
-
-            jsonUserInfo.put("seasonTier", jsonArrST);
-            jsonUserInfo.put("profileIconUrl", profileIconUrl);
-            jsonUserInfo.put("ladderRanking", "1954803");
-
-            //받아온 JSON 형식 데이터를 DTO에 담기
-            ConvertDto(jsonUserInfo.toString());
-
-            
-
-            //DTO를 이용해서 JSON 데이터 jsonPart1
-            JSONObject jsonPart1 = new JSONObject();
-            System.out.println("resPart1 : " + resPart1);
+            //DTO를 이용해서 최종 JSONObject resPart1 생성
             String strResPart1 = gson.toJson(resPart1);
+            Object objResPart1 = jParser.parse(strResPart1);
+            JSONObject jsonPart1 = (JSONObject) objResPart1;
 
-            System.out.println("strResPart1 : " + strResPart1);
-
-            Object obj = jParser.parse(strResPart1);
-            jsonPart1 = (JSONObject) obj;
-
-            //최종 전달 JSON 데이터
-            jsonResMain.put("status", 200);
-            jsonResMain.put("message", "SUCCESS");
+            //최종 jsonResMain 데이터
             jsonResMain.put("resPart1", jsonPart1);
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,26 +91,37 @@ public class OpggApiTestController {
     }
    
     //JSONObject를 DTO 클래스로 변환
-    public void ConvertDto(String args) throws JsonProcessingException { 
-        String jsonString = args;
-        System.out.println("jsonString : " + jsonString);
+    public void ConvertDto(String strJsonObject) throws JsonProcessingException { 
         ObjectMapper objectMapper = new ObjectMapper(); 
         //선언한 필드만 매핑 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        resPart1 = objectMapper.readValue(jsonString, Opgg.ResPart1.class);
+        resPart1 = objectMapper.readValue(strJsonObject, Opgg.ResPart1.class);
         
-        System.out.println(resPart1.getLadderRanking());
-        System.out.println(resPart1.getName());
-        System.out.println(resPart1.getProfileIconUrl());
-        System.out.println(resPart1.getSummonerLevel());
         if(resPart1.getSeasonTier() != null){
             resPart1.getSeasonTier()
             .stream()
             .forEach(d -> {
-                System.out.println(d.getSeason() + " : " + d.getTier());
             });
         }
 
+    }
+
+    //시즌별 티어 임시
+    public JSONArray getSeasonTier() throws Exception{
+        //시즌별 티어
+        JSONArray jsonArrST = new JSONArray();
+
+        String[] season = {"2018", "2019", "2020", "2021"};
+        String[] tier = {"Bronze", "Silver", "Gold", "Platinum"};
+        for(int i=0; i<4; i++){
+            JSONObject jsonST = new JSONObject();
+            jsonST.put("season", season[i]);
+            jsonST.put("tier", tier[i]);
+
+            jsonArrST.add(jsonST);
+        }
+        
+        return jsonArrST;
     }
 
     public JSONObject getApiJson(String requestURL) throws Exception{
@@ -148,15 +141,20 @@ public class OpggApiTestController {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         CloseableHttpResponse response = httpClient.execute(httpGet);
 
-        if (response.getStatusLine().getStatusCode() == 200) {
+        int stateCode = response.getStatusLine().getStatusCode();
+
+        if (stateCode == 200) {
+            jsonResMain.put("status", stateCode);
+            jsonResMain.put("message", "SUCCESS");
+
             ResponseHandler<String> handler = new BasicResponseHandler();
             String body = handler.handleResponse(response);
-            //System.out.println("body : " + body);
 
             jsonObj = (JSONObject) jParser.parse(body);
-            //System.out.println("id : " + jsonObj.get("id").toString());
-            System.out.println("jsonObj : " + jsonObj);
         }else{
+            jsonResMain.put("status", stateCode);
+            jsonResMain.put("message", "FAILS");
+
             System.out.println("response is error : " + response.getStatusLine().getStatusCode());
         }
 
@@ -180,19 +178,23 @@ public class OpggApiTestController {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         CloseableHttpResponse response = httpClient.execute(httpGet);
 
-        if (response.getStatusLine().getStatusCode() == 200) {
+        int stateCode = response.getStatusLine().getStatusCode();
+
+        if (stateCode == 200) {
+            jsonResMain.put("status", stateCode);
+            jsonResMain.put("message", "SUCCESS");
+
             ResponseHandler<String> handler = new BasicResponseHandler();
             String body = handler.handleResponse(response);
-            //System.out.println("body : " + body);
 
             jsonArray = (JSONArray) jParser.parse(body);
-            //System.out.println("id : " + jsonObj.get("id").toString());
-            System.out.println("jsonArray : " + jsonArray);
         }else{
+            jsonResMain.put("status", stateCode);
+            jsonResMain.put("message", "FAILS");
+
             System.out.println("response is error : " + response.getStatusLine().getStatusCode());
         }
 
         return jsonArray;
     }
-
 }
