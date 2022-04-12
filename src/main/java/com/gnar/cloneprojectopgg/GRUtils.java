@@ -2,11 +2,15 @@ package com.gnar.cloneprojectopgg;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Iterator;
+
+import org.json.simple.JSONObject;
 
 /**
  * GRUtils
  */
 public class GRUtils {
+
     //URL Encoding
     public String URLEncode(String url) {
         String enUrl = "";
@@ -29,4 +33,19 @@ public class GRUtils {
         }
         return deUrl;
     }
+
+    public JSONObject JSONMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
+        //최종으로 보낼 jsonObject
+        JSONObject jsonMerge = new JSONObject();
+        JSONObject[] objs = new JSONObject[] { jsonPart1, jsonPart2 };
+        for (JSONObject obj : objs) {
+            Iterator it = obj.keySet().iterator();
+            while (it.hasNext()) {
+                String key = (String)it.next();
+                jsonMerge.put(key, obj.get(key));
+            }
+        }
+        return jsonMerge;
+    }
+
 }

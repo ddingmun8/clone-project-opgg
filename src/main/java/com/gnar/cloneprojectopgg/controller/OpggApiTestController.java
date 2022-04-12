@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,9 +36,9 @@ import org.json.simple.parser.JSONParser;
 public class OpggApiTestController {
     GRUtils grUtils = new GRUtils();
     //최종 DTO
-    Opgg.ResMain resMain = new Opgg.ResMain();
+    Opgg.ResMain dtoResMain = new Opgg.ResMain();
     //PART1 DTO
-    Opgg.ResPart1 resPart1 = new Opgg.ResPart1();
+    Opgg.ResPart1 dtoResPart1 = new Opgg.ResPart1();
 
     //최종 응답 JSONObject
     JSONObject jsonResMain = new JSONObject();
@@ -61,27 +62,27 @@ public class OpggApiTestController {
         try {
             //resPart1  JSON 만들기
             //1. 라이엇 API 사용자 이름, 레벨, 아이콘
-            JSONObject jsonDto = getApiJson(requestUrl);
+            JSONObject jsonPart1 = getApiJson(requestUrl);
             //2. 시즌별 티어
             JSONArray jsonArrST = getSeasonTier();
             //3. 프로필 아이콘 URL
-            String profileIconUrl = "https://ddragon.leagueoflegends.com/cdn/12.6.1/img/profileicon/" + jsonDto.get("profileIconId") + ".png";
+            String profileIconUrl = "https://ddragon.leagueoflegends.com/cdn/12.6.1/img/profileicon/" + jsonPart1.get("profileIconId") + ".png";
 
             //1~3 데이터 JSON형식으로 합치기
-            jsonDto.put("seasonTier", jsonArrST);
-            jsonDto.put("profileIconUrl", profileIconUrl);
-            jsonDto.put("ladderRanking", "1954803");
+            jsonPart1.put("seasonTier", jsonArrST);
+            jsonPart1.put("profileIconUrl", profileIconUrl);
+            jsonPart1.put("ladderRanking", "1954803");
 
-            //resPart1 모든 정보 DTO에 담기
-            ConvertDto(jsonDto.toString());
+            //resPart 모든 정보 DTO에 담기
+            ConvertDto(jsonPart1.toString());
 
             //DTO를 이용해서 최종 JSONObject resPart1 생성
-            String strResPart1 = gson.toJson(resPart1);
+            String strResPart1 = gson.toJson(dtoResPart1);
             Object objResPart1 = jParser.parse(strResPart1);
-            JSONObject jsonPart1 = (JSONObject) objResPart1;
+            JSONObject jsonResPart1 = (JSONObject) objResPart1;
 
             //최종 jsonResMain 데이터
-            jsonResMain.put("resPart1", jsonPart1);
+            jsonResMain.put("resPart1", jsonResPart1);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,10 +96,10 @@ public class OpggApiTestController {
         ObjectMapper objectMapper = new ObjectMapper(); 
         //선언한 필드만 매핑 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        resPart1 = objectMapper.readValue(strJsonObject, Opgg.ResPart1.class);
+        dtoResPart1 = objectMapper.readValue(strJsonObject, Opgg.ResPart1.class);
         
-        if(resPart1.getSeasonTier() != null){
-            resPart1.getSeasonTier()
+        if(dtoResPart1.getSeasonTier() != null){
+            dtoResPart1.getSeasonTier()
             .stream()
             .forEach(d -> {
             });
@@ -197,4 +198,5 @@ public class OpggApiTestController {
 
         return jsonArray;
     }
+
 }
