@@ -12,7 +12,7 @@ import org.json.simple.JSONObject;
 public class GRUtils {
 
     //URL Encoding
-    public String URLEncode(String url) {
+    public String urlEncode(String url) {
         String enUrl = "";
         try {
             enUrl = URLEncoder.encode(url, "UTF-8");
@@ -24,7 +24,7 @@ public class GRUtils {
     
 
     //URL Ddcoding
-    public String URLDecode(String url) {
+    public String urlDecode(String url) {
         String deUrl = "";
         try {
             deUrl = URLDecoder.decode(url, "UTF-8");
@@ -34,7 +34,7 @@ public class GRUtils {
         return deUrl;
     }
 
-    public JSONObject JSONMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
+    public JSONObject jsonMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
         //최종으로 보낼 jsonObject
         JSONObject jsonMerge = new JSONObject();
         JSONObject[] objs = new JSONObject[] { jsonPart1, jsonPart2 };

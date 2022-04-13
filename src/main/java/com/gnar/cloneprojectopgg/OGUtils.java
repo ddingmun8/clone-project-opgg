@@ -1,6 +1,9 @@
 package com.gnar.cloneprojectopgg;
 
+import java.util.HashMap;
 import java.util.Iterator;
+
+import com.google.gson.Gson;
 
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -15,8 +18,10 @@ import org.json.simple.parser.JSONParser;
  * OGUtils - OPGG API 사용에 필요한 유틸모음
  */
 public class OGUtils {
+    JSONParser jParser = new JSONParser();
+    Gson gson = new Gson();
 
-    public JSONObject JSONMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
+    public JSONObject jsonMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
         //최종으로 보낼 jsonObject
         JSONObject jsonMerge = new JSONObject();
         JSONObject[] objs = new JSONObject[] { jsonPart1, jsonPart2 };
@@ -34,7 +39,7 @@ public class OGUtils {
     public JSONObject getApiJson(String requestURL, String riotApiKey) throws Exception{
         JSONObject jsonObj = new JSONObject();
         JSONParser jParser = new JSONParser();
-
+        
         //get 메서드와 URL 설정
         HttpGet httpGet = new HttpGet(requestURL);
 
@@ -51,16 +56,13 @@ public class OGUtils {
         int stateCode = response.getStatusLine().getStatusCode();
 
         if (stateCode == 200) {
-            jsonObj.put("status", stateCode);
-            jsonObj.put("message", "SUCCESS");
-
             ResponseHandler<String> handler = new BasicResponseHandler();
             String body = handler.handleResponse(response);
 
             jsonObj = (JSONObject) jParser.parse(body);
+            jsonObj.put("status", stateCode);
         }else{
             jsonObj.put("status", stateCode);
-            jsonObj.put("message", "FAILS");
 
             System.out.println("response is error : " + response.getStatusLine().getStatusCode());
         }
