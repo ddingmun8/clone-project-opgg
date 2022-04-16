@@ -1,6 +1,5 @@
 package com.gnar.cloneprojectopgg;
 
-import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gson.Gson;
@@ -21,6 +20,7 @@ public class OGUtils {
     JSONParser jParser = new JSONParser();
     Gson gson = new Gson();
 
+    @SuppressWarnings("unchecked")
     public JSONObject jsonMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
         //최종으로 보낼 jsonObject
         JSONObject jsonMerge = new JSONObject();
@@ -36,10 +36,11 @@ public class OGUtils {
     }
 
     //OPGG getApiJson
+    @SuppressWarnings("unchecked")
     public JSONObject getApiJson(String requestURL, String riotApiKey) throws Exception{
         JSONObject jsonObj = new JSONObject();
         JSONParser jParser = new JSONParser();
-        
+
         //get 메서드와 URL 설정
         HttpGet httpGet = new HttpGet(requestURL);
 

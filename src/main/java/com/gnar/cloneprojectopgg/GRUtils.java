@@ -34,6 +34,7 @@ public class GRUtils {
         return deUrl;
     }
 
+    @SuppressWarnings("unchecked")
     public JSONObject jsonMerge(JSONObject jsonPart1, JSONObject jsonPart2) throws Exception {
         //최종으로 보낼 jsonObject
         JSONObject jsonMerge = new JSONObject();

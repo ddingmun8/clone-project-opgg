@@ -36,6 +36,7 @@ public class OpggController {
     String strStaCode = "";
 
     //소환사 정보검색(SUMMONER-V4)
+    @SuppressWarnings("unchecked")
     @GetMapping(path = "/findUserInfo/{summonerName}")
     public JSONObject findUserInfo(@PathVariable(name = "summonerName") String summonerName) {
         try {
@@ -59,6 +60,7 @@ public class OpggController {
         return jsonResMain;
     }
 
+    @SuppressWarnings("unchecked")
     public String addStaMsg(String state){
         int stateCode = Integer.parseInt(state);
         String status = "";

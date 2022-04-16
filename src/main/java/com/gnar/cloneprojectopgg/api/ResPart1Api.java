@@ -54,7 +54,6 @@ public class ResPart1Api {
     }
 
     //소환사 정보검색(SUMMONER-V4)
-    @SuppressWarnings("unchecked")
     public JSONObject apiSummonerInfo(String summonerName, String riotApiKey) throws Exception {
 
         summonerName = grUtils.urlEncode(summonerName);
@@ -64,6 +63,7 @@ public class ResPart1Api {
     }
 
     //시즌별 티어 임시
+    @SuppressWarnings("unchecked")
     public JSONArray getSeasonTier() throws Exception{
         //시즌별 티어
         JSONArray jsonArrST = new JSONArray();
@@ -83,7 +83,7 @@ public class ResPart1Api {
         
         return jsonArrST;
     }
-
+    
     public JSONObject convertDto(String strJsonObject) throws JsonProcessingException { 
         ObjectMapper objectMapper = new ObjectMapper(); 
         //선언한 필드만 매핑 
