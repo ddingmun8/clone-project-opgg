@@ -19,13 +19,4 @@ public class MainController {
         model.addAttribute("name", "gary");
         return "index";
     }
-
-    @GetMapping(path = "/test")
-    public String test(Model model) {
-        System.out.println("test");
-        //소환사 명 인코딩
-        model.addAttribute("name", "gary");
-        return "gold";
-    }
-
 }
