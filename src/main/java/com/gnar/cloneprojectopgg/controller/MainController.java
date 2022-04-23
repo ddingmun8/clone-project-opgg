@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
     GRUtils grUtils = new GRUtils();
 
-    @GetMapping(path = "/")
+    @GetMapping(path = "/main")
+    public String main(Model model) {
+        return "main";
+    }
+
+    @GetMapping(path = "/hellow")
     public String hellow(Model model) {
         System.out.println("test");
         //소환사 명 인코딩
