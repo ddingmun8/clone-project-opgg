@@ -1,6 +1,7 @@
 package com.gnar.cloneprojectopgg.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +39,7 @@ public class OpggController {
     //소환사 정보검색(SUMMONER-V4)
     @SuppressWarnings("unchecked")
     @GetMapping(path = "/findUserInfo/{summonerName}")
-    public JSONObject findUserInfo(@PathVariable(name = "summonerName") String summonerName) {
+    public JSONObject findUserInfo(@PathVariable(name = "summonerName") String summonerName, Model model) {
         try {
             //part1 JOSNObject
             JSONObject resMergePart1 = resPart1Api.getPart1Info(summonerName, riotApiKey);
@@ -52,7 +53,6 @@ public class OpggController {
                 JSONObject resPart1 = resPart1Api.convertDto(resMergePart1.toString());
                 jsonResMain.put("resPart1", resPart1);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
